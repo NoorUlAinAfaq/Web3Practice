@@ -1,0 +1,50 @@
+var Tx = require('ethereumjs-tx').Transaction;
+const Web3 = require('web3')
+const web3 = new Web3('https://ropsten.infura.io/v3/e4d1e32fbc4c4484beb8fbf1bfcbc76a');
+
+const senderAccount = "0x69d96053Ec00Fa5413AAd33A19f9380CC7F75456";
+const receiverAccount = "0x0D889F72b3FeD2bE2b7481b5B852d3DeB2bA578F";
+
+const privateKeySender = "9075e9453da37172164db2cf643e3b659adf16c804946096a7de9c9f19d62c66";
+const privateKeyReceiver = "765721D4FF7072A690670588DC753E63A8CB9940B8FD7515DAD6F6BCC5B278D4";
+
+const privateKeySBuffer = Buffer.from(privateKeySender, 'hex');
+const privateKeyRBuffer = Buffer.from(privateKeyReceiver, 'hex');
+
+console.log("Buffer 1 = ",privateKeySBuffer);
+console.log("Buffer 2 = ",privateKeyRBuffer);
+
+web3.eth.getTransactionCount(senderAccount, (err, txCount)=>{
+   
+    const data = {
+        "linkReferences": {},
+        "object": "608060405234801561001057600080fd5b5060ca8061001f6000396000f3fe6080604052348015600f57600080fd5b506004361060325760003560e01c806376ff4525146037578063eee97206146053575b600080fd5b603d607e565b6040518082815260200191505060405180910390f35b607c60048036036020811015606757600080fd5b81019080803590602001909291905050506087565b005b60008054905090565b600281026000819055505056fea2646970667358221220715a9c91008405b79444885a95ef46e0bebca2071af032e389a7354d04f348ab64736f6c63430006000033",
+        "opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH2 0x10 JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0xCA DUP1 PUSH2 0x1F PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x4 CALLDATASIZE LT PUSH1 0x32 JUMPI PUSH1 0x0 CALLDATALOAD PUSH1 0xE0 SHR DUP1 PUSH4 0x76FF4525 EQ PUSH1 0x37 JUMPI DUP1 PUSH4 0xEEE97206 EQ PUSH1 0x53 JUMPI JUMPDEST PUSH1 0x0 DUP1 REVERT JUMPDEST PUSH1 0x3D PUSH1 0x7E JUMP JUMPDEST PUSH1 0x40 MLOAD DUP1 DUP3 DUP2 MSTORE PUSH1 0x20 ADD SWAP2 POP POP PUSH1 0x40 MLOAD DUP1 SWAP2 SUB SWAP1 RETURN JUMPDEST PUSH1 0x7C PUSH1 0x4 DUP1 CALLDATASIZE SUB PUSH1 0x20 DUP2 LT ISZERO PUSH1 0x67 JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST DUP2 ADD SWAP1 DUP1 DUP1 CALLDATALOAD SWAP1 PUSH1 0x20 ADD SWAP1 SWAP3 SWAP2 SWAP1 POP POP POP PUSH1 0x87 JUMP JUMPDEST STOP JUMPDEST PUSH1 0x0 DUP1 SLOAD SWAP1 POP SWAP1 JUMP JUMPDEST PUSH1 0x2 DUP2 MUL PUSH1 0x0 DUP2 SWAP1 SSTORE POP POP JUMP INVALID LOG2 PUSH5 0x6970667358 0x22 SLT KECCAK256 PUSH18 0x5A9C91008405B79444885A95EF46E0BEBCA2 SMOD BYTE CREATE ORIGIN 0xE3 DUP10 0xA7 CALLDATALOAD 0x4D DIV RETURN 0x48 0xAB PUSH5 0x736F6C6343 STOP MOD STOP STOP CALLER ",
+        "sourceMap": "24:210:0:-:0;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;24:210:0;;;;;;;"
+    }
+   
+    const txObject = {
+        nonce:    web3.utils.toHex(txCount),
+        gasLimit: web3.utils.toHex(800000),
+        gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),
+        to: contractAddress,
+        data: data
+      }
+
+    const transaction1 = new Tx(txObject, {chain: 'ropsten'});
+    transaction1.sign(privateKeySBuffer);
+
+    const serializedTx = transaction1.serialize();
+    const raw = '0x' + serializedTx.toString('hex');
+
+    console.log("transaction = ",transaction1);
+    console.log("serializedTx = ",serializedTx);
+    console.log("raw = ",raw);
+
+    web3.eth.sendSignedTransaction(raw, (err, txHash) => {
+        console.log('txHash:', txHash)
+    });
+    
+});
+
+
